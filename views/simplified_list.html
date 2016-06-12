@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+  	<meta charset="utf-8">
+  </head>
+  <body>
+  <table border="1">
+  <tr>
+  <th>氏名</th>
+  <th>BMI</th>
+  <th>ユーザ画像</th>
+  <th>更新</th>
+  <th>削除</th>
+  </tr>
+%for row in rows:
+  <tr>
+    <td>{{row[0]}}</td>
+    <td><form action="./bmi" method="get">
+    		<input type="hidden" name="account_name" value="{{row[0]}}">
+    		<input type="submit" value="BMI">
+    		</form>
+    </td>
+    <td><img src="{{row[1]}}" width="75" height="100"></td>
+    <td><form action="./edit" method="get">
+    		<input type="hidden" name="account_name" value="{{row[0]}}">
+    		<input type="submit" value="編集">
+    		</form>
+	</td>
+    <td><form action="./delete" method="post">
+    		<input type="hidden" name="account_name" value="{{row[0]}}">
+    		<input type="submit" value="削除">
+    		</form>
+    </td>
+  </tr>
+%end
+  </table>
+  <a href="./insert">新規作成</a>
+  </body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+  	<meta charset="utf-8">
+    <!--見た目をBootlstrapで綺麗にする-->
+	<link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" media="screen" rel="stylesheet">
+  </head>
+  <body>
+
+    <div class="container" style="margin:30px;padding:20px 0;">
+    	<h3><a href="/list">TOPへ</a></h3>
+		<table class="table">
+			<tr>
+				<th>氏名</th>
+				<th>ユーザ画像</th>
+			</tr>
+			<tr>
+			    <td>{{get('account_name','')}}</td>
+			    <td><img src="{{get('user_photo','')}}" width="75" height="100"></td>
+			</tr>
+		</table>
+
+		<div id="table_div" style="margin-top:20px;width: 400px;"></div>
+		<div id="linechart_div" style="margin-top:20px;width: 400px; height: 300px;"></div>
+  	
+  	</div>
+  	
+    <!-- Google  AJAX APIをロードする-->
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+	  // Visualization APIのtableパッケージを読込む
+      google.load("visualization", "1", {packages:["table"]});
+
+  	  //Google Visualization library のロードが完了したときにコールバック関数を実行
+      google.setOnLoadCallback(tableChart);
+
+      //データ作成とテーブル表示の関数を定義
+      function tableChart() {
+  		  // データを格納するオブジェクトを作成
+          var data = google.visualization.arrayToDataTable([
+            ['年月', 'あなたのBMI' ,],
+            [new Date(2013,07,01),22.4,],
+			[new Date(2013,08,01),22.7,],
+			[new Date(2013,09,01),23.1,],
+        ]);
+
+        // Tableのオブジェクトを生成しdrawメソッドでブラウザに表示
+        var table = new google.visualization.Table(document.getElementById('table_div'));
+        table.draw(data, {showRowNumber: true});
+      }
+    </script>
+    <script type="text/javascript">
+ 	  // Visualization APIのcorechartパッケージを読込む.
+      google.load("visualization", "1", {packages:["corechart"]});
+
+	  //Google Visualization library のロードが完了したときにコールバック関数を実行
+      google.setOnLoadCallback(drawChart);
+  
+      //データを作成しグラフを描く関数を定義
+      function drawChart() {
+  		  // データを格納するオブジェクトを作成
+          var data = google.visualization.arrayToDataTable([
+	        ['年月', 'あなたのBMI','理想値',],
+			[new Date(2013,07,01),22.4,22,],
+			[new Date(2013,08,01),22.7,22,],
+			[new Date(2013,09,01),23.1,22,],
+         ]);
+
+          var options = {title: 'BMI指数の変化', vAxis:{minValue:20,maxValue:24},};
+
+        // 線グラフのオブジェクトを生成しdrawメソッドでブラウザに表示
+        var chart = new google.visualization.LineChart(document.getElementById('linechart_div'));
+        chart.draw(data, options);
+      }
+    </script>
+
+
+    <!--見た目をBootlstrapで綺麗にする-->
+    <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.min.js"></script>
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+
+
+  </body>
+</html>

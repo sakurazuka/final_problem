@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title>BBTヘルスケア</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" media="screen" rel="stylesheet">
+    <link href="css/datepicker3.css" rel="stylesheet" media="screen">
+	<link href="css/bootstrapValidator.min.css" rel="stylesheet" media="screen"/>
+	<style>
+	.datepicker {z-index: 1151 !important;}
+	</style>
+
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top">
+ % include('navbar.html', active='bmi')     
+    </nav>
+    <div class="container" style="margin-top:60px;padding:20px 0">
+    <h1>最新の健康状態</h1>
+    <table class="table">
+    <tr><th>測定日</th><td>{{latest_date}}</td></tr>
+    <tr><th>体重</th><td>{{weight}}</td></tr>
+    <tr><th>身長</th><td>{{height}} </td></tr>
+    <tr><th>BMI</th><td>{{bmi}}</td></tr>
+    <tr><th>肥満度</th><td>太りすぎ／太りぎみ／標準／やせすぎ</td></tr>
+	</table>
+     <a data-toggle="modal" href="#myModal" class="btn btn-primary">データ登録</a>
+     	    <div class="modal fade" id="myModal">
+		    <div class="modal-dialog">
+			    <form id="defaultForm" class="form-horizontal" action="./health-bmi"  method="post"
+				      style="margin:15px;">
+		      <div class="modal-content">
+		        <div class="modal-header">
+		          <button class="close" data-dismiss="modal">&times;</button>
+		          <h4 class="modal-title">BMIのデータ入力</h4>
+		        </div>
+		        <div class="modal-body">
+				        <div class="form-group">
+				          <label class="control-label col-sm-2" for="datepicker">年月日</label>
+				            <div class="col-sm-4  date" >
+				                <input type="text" class="form-control" id="datepicker" name="date" placeholder="yyyy/mm/dd"/>
+				                <!--<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+				                </span> -->
+				            </div>
+				        </div>
+				       <div class="form-group">
+				          <label class="control-label col-sm-2" for="height">身長[cm]</label>
+				          <div class="col-sm-4">
+				            <input type="text" id="height" name="height" class="form-control" placeholder="例:170.0">
+				          </div>
+				        </div>
+				        <div class="form-group">
+				          <label class="control-label col-sm-2" for="weight">体重[kg]</label>
+				          <div class="col-sm-4">
+				            <input type="text" id="weight" name="weight"  class="form-control" placeholder="例:65.0">
+				          </div>
+				        </div>
+		        </div>
+		        <div class="modal-footer">
+				        <div class="form-group">
+				          <div class="col-sm-offset-2 col-sm-4">
+							<button type="button" data-dismiss="modal" class="btn">Cancel</button>
+							<input type="submit" value="登録" class="btn btn-primary">
+				          </div>
+				        </div>
+		        </div>
+		      </div>
+		      </form>
+		    </div>
+		  </div>
+
+	<div id="chart_div" style="margin-top:20px;width: 800px; height: 400px;"></div>
+	<div id="chart_div2" style="margin-top:20px;width: 800px; height: 400px;"></div>
+    </div>
+
+    <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.min.js"></script>
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script src="js/bootstrap-datepicker.js"></script>
+    <script src="js/locales/bootstrap-datepicker.ja.js"></script>
+	<script src="js/bootstrapValidator.min.js"></script>
+    <script type="text/javascript">
+	        $(function () {
+	            $('#datepicker').datepicker({
+	             format: 'yyyy/mm/dd',
+		        language: 'ja',
+		        autoclose:'true',
+		        todayHighlight:'true'
+		        });
+		        $('#defaultForm').bootstrapValidator({
+		                message: '入力が正しくありません。',
+				        feedbackIcons: {
+				            valid: 'glyphicon glyphicon-ok',
+				            invalid: 'glyphicon glyphicon-remove',
+				            validating: 'glyphicon glyphicon-refresh'
+				        },
+				        fields:{
+				        	date:{
+				        		validators:{
+				        			notEmpty:{
+				        				message:'入力してください。'
+				        			},
+				        		      date: {
+				                        format: 'YYYY/MM/DD',
+				                        message: '日付が正しくありません。'
+				                    }
+				        		}
+				        	},
+				        	height:{
+				        		validators:{
+				        			notEmpty:{
+				        				message:'入力してください。'
+				        			},
+				                    regexp: {
+				                        regexp: /^[0-9]+[\.]?[0-9]+$/,
+				                        message: '整数か小数で入力してください。'
+				                    }
+				        		}
+				        	},
+				        	weight:{
+				        		validators:{
+				        			notEmpty:{
+				        				message:'入力してください。'
+				        			},
+				                    regexp: {
+				                        regexp: /^[0-9]+[\.]?[0-9]+$/,
+				                        message: '整数か小数で入力してください。'
+				                    }
+				        		}
+				        	}
+				        }
+		        });
+  		        //datepickerとbootstrapValidatorが干渉しない対策
+		        //http://bootstrapvalidator.com/api/#datepicker-example
+	            $('#datepicker')
+			        .on('dp.change dp.show', function(e) {
+		            // Validate the date when user change it
+		            $('#defaultForm')
+		                // Get the bootstrapValidator instance
+		                .data('bootstrapValidator')
+		                // Mark the field as not validated, so it'll be re-validated when the user change date
+		                .updateStatus('datetime', 'NOT_VALIDATED', null)
+		                // Validate the field
+		                .validateField('datetime');
+		        });
+	        });
+    </script>
+    <!--Load the AJAX API-->
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+ 	  // Load the Visualization API and the piechart package.
+      google.load("visualization", "1", {packages:["corechart"]});
+
+	  // Set a callback to run when the Google Visualization library is loaded.
+      google.setOnLoadCallback(drawChart);
+
+      // Callback that creates and populates a data table,
+      // instantiates the pie chart, passes in the data and
+      // draws it.
+      function drawChart() {
+  		  // Create data table.
+          var data = google.visualization.arrayToDataTable([
+          ['年月', '太りぎみゾーン','あなた','理想値','やせぎみゾーン' ,],
+           {{get('records','')}}
+         ]);
+
+          var options = {
+          title: 'BMI指数の変化',
+          series:{
+          	0:{ lineDashStyle: [14, 2, 7, 2],lineWidth:5},
+          	1:{ pointSize:5},
+          	2:{ lineDashStyle: [14, 2, 7, 2],lineWidth:2},
+          	3:{ lineDashStyle: [14, 2, 7, 2],lineWidth:5}
+          },
+          colors:[ '#e2431e', '#3366cc', '#5c3292', '#e2431e']
+        };
+
+        // Instantiate and draw our chart, passing in some options.
+        var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+%if defined('records'):
+        chart.draw(data, options);
+%end
+      }
+
+      google.setOnLoadCallback(drawWeight);
+      function drawWeight() {
+        var data = google.visualization.arrayToDataTable([
+          ['年月', 'あなたの体重',],
+           {{get('weight_hist','')}}
+         ]);
+
+        var options = {
+          title: '体重[kg]の変化',
+          series:{
+          	0:{ pointSize:5},
+          },
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('chart_div2'));
+%if defined('weight_hist'):
+        chart.draw(data, options);
+%end
+      }
+    </script>
+  </body>
+</html>

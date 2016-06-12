@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title>BBTヘルスケア</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" media="screen" rel="stylesheet">
+    <link href="css/datepicker3.css" rel="stylesheet" media="screen">
+	<link href="css/bootstrapValidator.min.css" rel="stylesheet" media="screen"/>
+	<style>
+	.datepicker {z-index: 1151 !important;}
+	</style>
+
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top">
+% include('navbar.html', active='blood')      
+    </nav>
+    <div class="container" style="margin-top:60px;padding:20px 0">
+    <h1>最新の健康状態</h1>
+    <table class="table">
+	    <tr><th>測定日</th><td>{{get('latest_date','')}}</td></tr>
+	    <tr><th>最高血圧</th><td>{{get('latest_high_pressure','')}}</td></tr>
+	    <tr><th>最低血圧</th><td>{{get('latest_low_pressure','')}} </td></tr>
+	    <tr><th>脈拍</th><td>{{get('latest_pulse','')}}</td></tr>
+	    <tr><th>血圧</th><td>高血圧/正常高値血圧/正常血圧/至適血圧 </td></tr>
+	</table>
+ 
+    <a data-toggle="modal" href="#myModal" class="btn btn-primary">データ登録</a>
+	    <div class="modal fade" id="myModal">
+		    <div class="modal-dialog">
+				<form id="defaultForm" class="form-horizontal" action="./health-blood"  method="post"
+				      style="margin:15px;">
+		      <div class="modal-content">
+		        <div class="modal-header">
+		          <button class="close" data-dismiss="modal">&times;</button>
+		          <h4 class="modal-title">血圧/脈拍の入力</h4>
+		        </div>
+		        <div class="modal-body">
+				        <div class="form-group">
+				          <label class="control-label col-sm-2" for="datepicker">年月日</label>
+				            <div class="col-sm-4  date" >
+				                <input type="text" class="form-control" id="datepicker" 
+				                name="datetime" placeholder="yyyy/mm/dd"/>
+				                <!--<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+				                </span>-->
+				            </div>
+				        </div>
+				        <div class="form-group">
+				          <label class="control-label col-sm-2" for="pulse">脈拍</label>
+				          <div class="col-sm-4">
+				            <input type="text" id="pulse" name="pulse"  class="form-control" placeholder="例:100">
+				          </div>
+				        </div>
+				        <div class="form-group">
+				          <label class="control-label col-sm-2" for="high_pressure">最高血圧[mmHg]</label>
+				          <div class="col-sm-4">
+				            <input type="text" id="high_pressure" name="high_pressure" class="form-control" placeholder="例:120">
+				          </div>
+				        </div>
+				        <div class="form-group">
+				          <label class="control-label col-sm-2" for="low_pressure">最低血圧[mmHg]</label>
+				          <div class="col-sm-4">
+				            <input type="text" id="low_pressure" name="low_pressure" class="form-control" placeholder="例:90">
+				          </div>
+				        </div>
+		        </div>
+		        <div class="modal-footer">
+				        <div class="form-group">
+				          <div class="col-sm-offset-2 col-sm-4">
+							 <button type="button" data-dismiss="modal" class="btn">Cancel</button>
+				            <input type="submit" value="登録" class="btn btn-primary">
+				          </div>
+				        </div>
+		          <!--<button class="btn btn-primary">OK!</button> -->
+		        </div>
+		      </div>
+				  </form>
+		    </div>
+		</div>
+	   
+		<div id="visualization_press_div" style="margin-top:20px;width: 800px; height: 400px;"></div>
+		<div id="visualization_pulse_div" style="margin-top:20px;width: 800px; height: 400px;"></div>
+
+    </div>
+
+    <script src="http://code.jquery.com/jquery.js"></script>
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script src="js/bootstrap-datepicker.js"></script>
+    <script src="js/locales/bootstrap-datepicker.ja.js"></script>
+	<script src="js/bootstrapValidator.min.js"></script>
+    <script type="text/javascript">
+	        $(function () {
+	            $('#datepicker').datepicker({
+	             format: 'yyyy/mm/dd',
+		        language: 'ja',
+		        autoclose:'true',
+		        todayHighlight:'true'
+		        });
+ 		        $('#defaultForm').bootstrapValidator({
+		                message: '入力が正しくありません。',
+				        feedbackIcons: {
+				            valid: 'glyphicon glyphicon-ok',
+				            invalid: 'glyphicon glyphicon-remove',
+				            validating: 'glyphicon glyphicon-refresh'
+				        },
+				        fields:{
+				        	datetime:{
+				        		validators:{
+				        			notEmpty:{
+				        				message:'入力してください。'
+				        			},
+				        		      date: {
+				                        format: 'YYYY/MM/DD',
+				                        message: '日付が正しくありません。'
+				                    }
+				        		}
+				        	},
+				        	pulse:{
+				        		validators:{
+				        			notEmpty:{
+				        				message:'入力してください。'
+				        			},
+				                    regexp: {
+				                        regexp: /^[0-9]+$/,
+				                        message: '数字で入力してください。'
+				                    }
+				        		}
+				        	},
+				        	high_pressure:{
+				        		validators:{
+				        			notEmpty:{
+				        				message:'入力してください。'
+				        			},
+				                    regexp: {
+				                        regexp: /^[0-9]+$/,
+				                        message: '数字で入力してください。'
+				                    }
+				        		}
+				        	},
+				        	low_pressure:{
+				        		validators:{
+				        			notEmpty:{
+				        				message:'入力してください。'
+				        			},
+				                    regexp: {
+				                        regexp: /^[0-9]+$/,
+				                        message: '数字で入力してください。'
+				                    }
+				        		}
+				        	}
+				        }
+		        });
+		        
+  		        //datepickerとbootstrapValidatorが干渉しない対策
+		        //http://bootstrapvalidator.com/api/#datepicker-example
+	            $('#datepicker')
+			        .on('dp.change dp.show', function(e) {
+		            // Validate the date when user change it
+		            $('#defaultForm')
+		                // Get the bootstrapValidator instance
+		                .data('bootstrapValidator')
+		                // Mark the field as not validated, so it'll be re-validated when the user change date
+		                .updateStatus('datetime', 'NOT_VALIDATED', null)
+		                // Validate the field
+		                .validateField('datetime');
+		        });
+
+	        });
+   </script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+    	//描画するデータをAPIから読み取ってグラフ表示する ChartWrapperの項目を参照
+    	// https://developers.google.com/chart/interactive/docs/drawing_charts
+		google.load("visualization", "1", {packages:["corechart"]});
+	    google.setOnLoadCallback(drawPressVisualization);
+	    function drawPressVisualization() {
+	      google.visualization.drawChart({
+	        "containerId": "visualization_press_div",
+	        "dataSourceUrl": '/api/blood_pressure?tqx=reqId:0',
+	        "refreshInterval": 5,
+	        "chartType": "LineChart",
+	        "options": {
+	          "title": '血圧の変化',
+	          "series":{
+	          	0:{ "pointSize":5,"lineWidth":2,},
+	          	1:{ "pointSize":5,"lineWidth":2},
+	         	2:{ "lineDashStyle": [14, 2, 7, 2],"lineWidth":5},
+	          	3:{ "lineDashStyle": [14, 2, 7, 2],"lineWidth":5}
+	          	},
+	           "colors":['#3366cc','#3399cc', '#e2431e', '#f48159'],
+	           "vAxis": { "ticks":[50,75,100,125,150,175] }
+	        }
+	      });
+	    }
+	    
+	    function drawPulseVisualization() {
+	      google.visualization.drawChart({
+	        "containerId": "visualization_pulse_div",
+	        "dataSourceUrl": '/api/blood_pulse?tqx=reqId:1',
+	        "refreshInterval": 5,
+	        "chartType": "LineChart",
+	        "options": {
+	           "title": '脈拍の変化',
+	          "series":{
+	          	0:{ "pointSize":5, "lineWidth":2,},
+	          }
+	        }
+	      });
+	    }
+	    google.setOnLoadCallback(drawPulseVisualization);
+
+    </script>
+  </body>
+</html>

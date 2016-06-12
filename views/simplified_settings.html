@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+  	<meta charset="utf-8">
+  </head>
+  <body>
+  
+  <img src="{{get('user_photo' , './images/no_user.png')}}" width="75" height="100" ></br>
+  
+	<form  action="{{get('url' , '/edit')}}" method="post" enctype="multipart/form-data" 	>
+  
+    	氏名<input type="text" name="account_name"  value="{{get('account_name','')}}">
+  
+    	画像<input type="file" name="photo" title=" ファイルを選択" >
+  		<input type="hidden" name = "bfr_account_name" value="{{get('account_name','')}}">
+    	<input type="submit" value="{{get('submit_type','')}}" >
+  
+ 	</form>
+ 	
+  </body>
+</html>

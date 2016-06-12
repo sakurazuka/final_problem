@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title>BBTヘルスケア</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" media="screen" rel="stylesheet">
+    <link href="css/datepicker3.css" rel="stylesheet" media="screen">
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="navbar-header">
+        <button class="navbar-toggle" data-toggle="collapse" data-target=".target">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="./info-notlogin.html">BBTヘルスケア</a>
+      </div>
+  
+    </nav>    
+    <div class="container" style="padding:20px 0">
+      <form id="defaultForm" class="form-horizontal" action="./signup"  method="post" enctype="multipart/form-data" 
+      style="margin-top:50px;margin-bottom:15px;margin-left:15px;margin-right:15px;">
+       <div class="form-group">
+          <label class="control-label col-sm-2" for="name">氏名</label>
+          <div class="col-sm-4">
+            <input type="text" id="name" name="account_name" class="form-control"
+            value="{{get('account_name','')}}" placeholder="氏名" >
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="control-label col-sm-2" for="email">Email</label>
+          <div class="col-sm-4">
+            <input type="text" id="email" name="email" class="form-control"
+            value="{{get('email','')}}"  placeholder="メールアドレス">
+          </div>
+        </div>
+         <div class="form-group">
+          <label class="control-label col-sm-2" for="password">パスワード</label>
+          <div class="col-sm-4">
+            <input type="password" id="password" name="password" class="form-control" value="{{get('password','')}}" >
+          </div>
+        </div>
+         <div class="form-group">
+          <label class="control-label col-sm-2" for="confirmPassword">パスワード確認</label>
+          <div class="col-sm-4">
+            <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" value="{{get('password','')}}" >
+          </div>
+        </div>
+       <div class="form-group">
+          <label class="control-label col-sm-2" for="serial">シリアル番号</label>
+          <div class="col-sm-4">
+            <input type="text" id="serial" name="serial"  class="form-control"  value="{{get('serial','')}}" 
+             placeholder="製品のシリアル番号を記入">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="control-label col-sm-2" for="datepicker">生年月日</label>
+            <div class="col-sm-4  date" >
+                <input type="text" class="form-control" name="birthday" 
+                id="datepicker" placeholder="yyyy/mm/dd" value="{{get('birthday','')}}"/>
+                <!--<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                </span> -->
+            </div>
+        </div>
+   	   <div class="form-group" >
+         	<label class="control-label col-sm-2" for="photo" >ユーザ画像</label>
+	   		<div class="controls col-sm-4">
+               <img src="{{get('user_photo' , './images/no_user.png')}}" class="img-thumbnail"
+ 	                  style="display:inline-block;float:none;vertical-align:middle;width:80px;margin-right:20px;">
+ 	                  <input type="file"  id="photo" name="photo" title=" ファイルを選択" />
+             </div>
+       </div>
+      <div class="form-action">
+          <div class="col-sm-offset-2 col-sm-4">
+            <input type="submit" value="新規登録" class="btn btn-primary">
+          </div>
+        </div>
+      </form>
+
+    </div>
+
+    <script src="http://code.jquery.com/jquery.js"></script>
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script src="js/bootstrap.file-input.js"></script>
+    <script type="text/javascript">
+			$('input[type=file]').bootstrapFileInput();
+			$('.file-inputs').bootstrapFileInput();
+    </script>
+    <script src="js/bootstrap-datepicker.js"></script>
+    <script src="js/locales/bootstrap-datepicker.ja.js"></script>
+	<script src="js/bootstrapValidator.min.js"></script>
+    <script type="text/javascript">
+	        $(function () {
+	            $('#datepicker').datepicker({
+	             format: 'yyyy/mm/dd',
+		        language: 'ja',
+		        autoclose:'true'
+		        });
+		        $('#defaultForm').bootstrapValidator({
+		                message: '入力が正しくありません。',
+				        feedbackIcons: {
+				            valid: 'glyphicon glyphicon-ok',
+				            invalid: 'glyphicon glyphicon-remove',
+				            validating: 'glyphicon glyphicon-refresh'
+				        },
+				        fields:{
+				        	account_name:{
+				        		validators:{
+				        			notEmpty:{
+				        				message:'入力してください。'
+				        			},
+			        			}
+		        			},
+		        			email:{
+				        		validators:{
+				        			notEmpty:{
+				        				message:'入力してください。'
+				        			},
+				        			emailAddress: {
+			                            message: 'emailアドレスを入力してください'
+			                        }
+		        				}
+		        			},
+			                password: {
+			                    validators: {
+			                        notEmpty: {
+			                            message: '入力してください'
+			                        },
+	                            identical: {
+			                        field: 'confirmPassword',
+			                        message: 'パスワードが一致しません'
+				                    },
+			                    regexp: {
+				                        regexp: /^[a-zA-Z0-9]{8,}$/,
+				                        message: '8文字以上で入力してください。'
+				                    },
+			                    }
+			                },
+			                confirmPassword: {
+			                    validators: {
+			                        notEmpty: {
+			                            message: '入力してください'
+			                        },
+	                            identical: {
+			                        field: 'password',
+			                        message: 'パスワードが一致しません'
+				                    },
+			                    }
+			                },
+			               serial: {
+			                    validators: {
+			                        notEmpty: {
+			                            message: '入力してください'
+			                        }
+			                    }
+			                },
+							birthday:{
+				        		validators:{
+				        			notEmpty:{
+				        				message:'入力してください。'
+				        			},
+				        		      date: {
+				                        format: 'YYYY/MM/DD',
+				                        message: 'yyyy/mm/ddの形式で入力してください。'
+				                    }
+				        		}
+				        	}
+				        }
+		        });
+	        });
+    </script>
+  </body>
+</html>
