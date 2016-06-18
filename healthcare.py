@@ -49,12 +49,12 @@ def login_post():
 		params[key]=unicode(request.forms.get(key,''),'utf-8')
 	db = sqlite3.connect(FILENAME).cursor()
 	row=db.execute('SELECT * from users where email=?',  (params['email'],)).fetchone()
-	
+
 	if row:
 		if not is_password_ok(params['password'],row[0],row[3]):
 			params['status']='error'
 			params['error_msg']='パスワードに誤りがあります。'
-			return template('./login.html',params)		
+			return template('./login.html',params)
 		#セッションの作成
 		app_session = request.environ.get('beaker.session')
 		app_session['logged_in'] = True
@@ -63,7 +63,7 @@ def login_post():
 	else:
 		params['status']='error'
 		params['error_msg']='アカウントが見つかりません。新規登録してください。'
-		return template('./login.html',params)		
+		return template('./login.html',params)
 
 	return redirect('/health-bmi')
 
@@ -72,7 +72,7 @@ def logout():
 	app_session = request.environ.get('beaker.session')
 	if app_session.get('logged_in'):
  		app_session['logged_in'] = False
- 
+
 	return redirect('/login')
 
 @route('/api/blood_pressure')
@@ -89,7 +89,7 @@ def blood_pressure_api():
 	'low':('number',u'最低血圧' ),'high_th':('number',u'最高血圧の正常ライン'),
 	'low_th':('number',u'最低血圧の正常ライン')}
 	data = []
-	
+
 	for row in rows:
 		[yyyy,mm,dd]=map(int,row[1].split('-',))
 		data.append({'date':date(yyyy,mm,dd),'high':row[2],
@@ -105,9 +105,9 @@ def blood_pressure_api():
 		tqx=request.query['tqx']
 		if  tqx:
 			req_id=dict([p.split(':') for p in tqx.split(';')]).get('reqId', req_id)
-		
+
 	return data_table.ToJSonResponse(columns_order=("date", "high", "low",'high_th','low_th'),req_id=req_id)
-	
+
 @route('/api/blood_pulse')
 def blood_pulse_api():
 	app_session = request.environ.get('beaker.session')
@@ -120,7 +120,7 @@ def blood_pulse_api():
 	db.close()
 	description={'date':('date',u'日付'), 'pulse':('number',u'脈拍')}
 	data = []
-	
+
 	for row in rows:
 		[yyyy,mm,dd]=map(int,row[1].split('-',))
 		data.append({'date':date(yyyy,mm,dd),'pulse':row[4]})
@@ -137,7 +137,7 @@ def blood_pulse_api():
 			req_id=dict([p.split(':') for p in tqx.split(';')]).get('reqId', req_id)
 
 	return data_table.ToJSonResponse(req_id=req_id)
-                                
+
 @route('/health-blood','GET')
 def health_blood():
 	app_session = request.environ.get('beaker.session')
@@ -174,9 +174,9 @@ def health_blood_post():
 
 	conn = sqlite3.connect(FILENAME)
 	db=conn.cursor()
-	db.execute('''INSERT INTO blood_data 
+	db.execute('''INSERT INTO blood_data
 			(account_id
-			,datetime 
+			,datetime
 			,high_pressure
 			,low_pressure
 			,pulse )
@@ -185,7 +185,7 @@ def health_blood_post():
 			,params['high_pressure'],params['low_pressure'],params['pulse'],))
 	conn.commit()
 	db.close()
-	return redirect('/health-blood')		
+	return redirect('/health-blood')
 
 @route('/health-bmi', 'GET')
 def health_bmi():
@@ -208,23 +208,35 @@ def health_bmi():
 	params['height']=''
 	params['weight']=''
 	params['latest_date']=''
+	params['himando']=''
 
 	for row in rows:
 		latest_bmi=str(bmi(float(row[2]),float(row[3])))
 		date= sqlite2google(row[1])
-		records=records+"[new Date("+date+"),25,"+latest_bmi+",22,18.5,],\n\t" 
+		records=records+"[new Date("+date+"),25,"+latest_bmi+",22,18.5,],\n\t"
 		weight_hist=weight_hist+"[new Date("+date+"),"+str(row[3])+",],\n\t"
 		params['bmi']=latest_bmi
 		params['height']=str(row[2])
 		params['weight']=str(row[3])
 		params['latest_date']=sqlite2fmt(row[1],'/')
 
-	if len(records)>0:	
+	if len(records)>0:
 		params["records"]=records
 
-	if len(weight_hist)>0:	
+	if len(weight_hist)>0:
 		params["weight_hist"]=weight_hist
-		
+
+#  課題１
+        if float(params['bmi'])<18.5:
+            params['himando']='やせすぎ'
+        elif float(params['bmi'])>=18.5 and float(params['bmi'])<25:
+            params['himando']='標準'
+        elif float(params['bmi'])>=25 and float(params['bmi'])<35:
+            params['himando']='太りぎみ'
+        elif float(params['bmi'])>=35:
+            params['himando']='太りすぎ'
+#  課題１
+
  	return template('./views/health-bmi.html', params)
 
 @route('/health-bmi','POST')
@@ -238,24 +250,24 @@ def health_bmi_post():
 
 	conn = sqlite3.connect(FILENAME)
 	db=conn.cursor()
-	db.execute('''INSERT INTO bmi_data 
+	db.execute('''INSERT INTO bmi_data
 			(account_id
-			,date 
-			,height 
+			,date
+			,height
 			,weight)
 		VALUES(?,?,?,?)''',
 			(params['account_id'], params['date'].replace('/','-')
 			,params['height'], params['weight'],))
 	conn.commit()
 	db.close()
-	return redirect('/health-bmi')		
+	return redirect('/health-bmi')
 
 @route('/password_settings','GET')
 def password_settings():
 	app_session = request.environ.get('beaker.session')
 	db_params=read_settings(app_session['account_id'])
 	params={'account_name':db_params['account_name']}
-	
+
 	return template('./views/password_settings.html',params)
 
 @route('/password_settings','POST')
@@ -263,7 +275,7 @@ def password_settings_post():
 	app_session = request.environ.get('beaker.session')
 	db_params=read_settings(app_session['account_id'])
 	params={'account_name':db_params['account_name']}
-	
+
 	request_params_key=['current_password','password',]
 	for key in request_params_key:
 		params[key]=unicode(request.forms.get(key,''),'utf-8')
@@ -272,19 +284,19 @@ def password_settings_post():
 	if not is_ok:
 			params['status']='error'
 			params['error_msg']='パスワードに誤りがあります。'
-			return template('./views/password_settings.html', params)		
-	
+			return template('./views/password_settings.html', params)
+
     #ハッシュ化したパスワードをsqlite3に保存
 	hash_password=getdigest(params['password'],app_session['account_id'])
 	conn = sqlite3.connect(FILENAME)
 	db=conn.cursor()
-	db.execute('''UPDATE users 
+	db.execute('''UPDATE users
 		SET password = ?
 		WHERE account_id=?''',
 			(hash_password,app_session['account_id'],))
 	conn.commit()
 	db.close()
-	
+
 	#更新成功したのでパスワードを初期化
 	for key in request_params_key:
 		del params[key]
@@ -304,7 +316,7 @@ def settings():
 def settings_post():
 	app_session = request.environ.get('beaker.session')
 	params=read_settings(app_session['account_id'])
-	
+
 	request_params_key=['account_name','email','serial','birthday']
 	# リクエストパラメータの値を取得
 	for key in request_params_key:
@@ -321,12 +333,12 @@ def settings_post():
 			return  template('./views/settings.html', params)
 		photo.save('./upload',overwrite=True)
 		params['user_photo']='./upload/'+photo.filename
-		
+
     #リクエストパラメータの変数名と値をsqlite3に保存
 	conn = sqlite3.connect(FILENAME)
 	db=conn.cursor()
-	db.execute('''UPDATE users 
-		SET account_name= ? 
+	db.execute('''UPDATE users
+		SET account_name= ?
 			,user_photo = ?
 			,email = ?
 			,serial = ?
@@ -340,7 +352,7 @@ def settings_post():
 
 	#更新完了
 	params['status']='success'
-	return template('./views/settings.html', params)	
+	return template('./views/settings.html', params)
 
 '''
 ディスクに保存した値を読み込む関数
@@ -361,7 +373,7 @@ def read_settings(account_id):
 		params['birthday']=row[5]
 		params['user_photo']=row[6]
 
-	db.close()	
+	db.close()
 	return params
 
 @route('/signup','GET')
@@ -378,7 +390,7 @@ def signup_post():
 		params[key]=unicode(request.forms.get(key,''),'utf-8')
     #ファイルデータを取得
 	photo=request.files.get('photo')
-	
+
 	if photo and photo.filename and photo.filename != '':
 		name,ext = os.path.splitext(photo.filename)
 		if ext not in ( '.png', '.jpg', '.jpeg','.gif' ):
@@ -389,16 +401,16 @@ def signup_post():
 		params['user_photo']='./upload/'+photo.filename
 	else:
 		params['user_photo']=''
-		
+
     #リクエストパラメータの変数名と値をsqlite3に保存
 	conn = sqlite3.connect(FILENAME)
 	db=conn.cursor()
-	db.execute('''INSERT INTO users 
-			(account_name 
-			,user_photo 
-			,password 
-			,email 
-			,serial 
+	db.execute('''INSERT INTO users
+			(account_name
+			,user_photo
+			,password
+			,email
+			,serial
 			,birthday )
 		VALUES(?,?,?,?,?,?)''',
 			(params['account_name'], params['user_photo']
@@ -407,7 +419,7 @@ def signup_post():
 	conn.commit()
 
 	# ハッシュパスワードへUPDATEするため、新規発行したaccount_id取得
-	row=db.execute('SELECT * from users where email=? and password=?', 
+	row=db.execute('SELECT * from users where email=? and password=?',
 	(params['email'],params['password'],)).fetchone()
 
 	#UPDATE実行
@@ -416,7 +428,7 @@ def signup_post():
 			( getdigest(params['password'],row[0]),row[0],))
 
 	conn.commit()
-	
+
 	db.close()
 
 	return template('./views/welcome.html',
@@ -448,9 +460,10 @@ def js_file(filename):
 
 @route('/<directory>/<filename:re:.*\.(png|jpg|jpeg|gif)>')
 def upload_file(directory, filename):
-	if directory in ('images','upload'): 
+	if directory in ('images','upload'):
 		return static_file(filename, root=directory,mimetype='image/*')
 	else:
 		abort(404,"Not Found")
 
-run(host='localhost', port=8080, debug=True, app=app_middlware )
+#  run(host='localhost', port=8080, debug=True, app=app_middlware )
+run(host='0.0.0.0', port=8080, debug=True, app=app_middlware )
