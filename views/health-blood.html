@@ -14,7 +14,7 @@
   </head>
   <body>
     <nav class="navbar navbar-default navbar-fixed-top">
-% include('navbar.html', active='blood')      
+% include('navbar.html', active='blood')
     </nav>
     <div class="container" style="margin-top:60px;padding:20px 0">
     <h1>最新の健康状態</h1>
@@ -23,9 +23,12 @@
 	    <tr><th>最高血圧</th><td>{{get('latest_high_pressure','')}}</td></tr>
 	    <tr><th>最低血圧</th><td>{{get('latest_low_pressure','')}} </td></tr>
 	    <tr><th>脈拍</th><td>{{get('latest_pulse','')}}</td></tr>
-	    <tr><th>血圧</th><td>高血圧/正常高値血圧/正常血圧/至適血圧 </td></tr>
+<!-- 課題２ -->
+        <!-- <tr><th>血圧</th><td>高血圧/正常高値血圧/正常血圧/至適血圧 </td></tr> -->
+        <tr><th>血圧</th><td>{{ketsuatsu}}</td></tr>
+<!-- 課題２ -->
 	</table>
- 
+
     <a data-toggle="modal" href="#myModal" class="btn btn-primary">データ登録</a>
 	    <div class="modal fade" id="myModal">
 		    <div class="modal-dialog">
@@ -40,7 +43,7 @@
 				        <div class="form-group">
 				          <label class="control-label col-sm-2" for="datepicker">年月日</label>
 				            <div class="col-sm-4  date" >
-				                <input type="text" class="form-control" id="datepicker" 
+				                <input type="text" class="form-control" id="datepicker"
 				                name="datetime" placeholder="yyyy/mm/dd"/>
 				                <!--<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
 				                </span>-->
@@ -78,7 +81,7 @@
 				  </form>
 		    </div>
 		</div>
-	   
+
 		<div id="visualization_press_div" style="margin-top:20px;width: 800px; height: 400px;"></div>
 		<div id="visualization_pulse_div" style="margin-top:20px;width: 800px; height: 400px;"></div>
 
@@ -151,7 +154,7 @@
 				        	}
 				        }
 		        });
-		        
+
   		        //datepickerとbootstrapValidatorが干渉しない対策
 		        //http://bootstrapvalidator.com/api/#datepicker-example
 	            $('#datepicker')
@@ -193,7 +196,7 @@
 	        }
 	      });
 	    }
-	    
+
 	    function drawPulseVisualization() {
 	      google.visualization.drawChart({
 	        "containerId": "visualization_pulse_div",

@@ -156,6 +156,16 @@ def health_blood():
 		params['latest_high_pressure']=str(row[2])
 		params['latest_low_pressure']=str(row[3])
 		params['latest_pulse']=str(row[4])
+# 課題２
+                if int(row[2])<120 and int(row[3])<80:
+                    params['ketsuatsu']='至適血圧'
+                elif int(row[2])<130 and int(row[3])<85:
+                    params['ketsuatsu']='正常血圧'
+                elif int(row[2])<140 and int(row[3])<90:
+                    params['ketsuatsu']='正常高値血圧'
+                else:
+                    params['ketsuatsu']='高血圧'
+# 課題２
 
 	return template('./views/health-blood.html',params)
 
@@ -209,6 +219,7 @@ def health_bmi():
 	params['weight']=''
 	params['latest_date']=''
 	params['himando']=''
+	params['himando']=''
 
 	for row in rows:
 		latest_bmi=str(bmi(float(row[2]),float(row[3])))
@@ -220,22 +231,22 @@ def health_bmi():
 		params['weight']=str(row[3])
 		params['latest_date']=sqlite2fmt(row[1],'/')
 
+#  課題１
+                if float(latest_bmi)<18.5:
+                    params['himando']='やせすぎ'
+                elif float(latest_bmi)>=18.5 and float(latest_bmi)<25:
+                    params['himando']='標準'
+                elif float(latest_bmi)>=25 and float(latest_bmi)<35:
+                    params['himando']='太りぎみ'
+                elif float(latest_bmi)>=35:
+                    params['himando']='太りすぎ'
+#  課題１
+
 	if len(records)>0:
 		params["records"]=records
 
 	if len(weight_hist)>0:
 		params["weight_hist"]=weight_hist
-
-#  課題１
-        if float(params['bmi'])<18.5:
-            params['himando']='やせすぎ'
-        elif float(params['bmi'])>=18.5 and float(params['bmi'])<25:
-            params['himando']='標準'
-        elif float(params['bmi'])>=25 and float(params['bmi'])<35:
-            params['himando']='太りぎみ'
-        elif float(params['bmi'])>=35:
-            params['himando']='太りすぎ'
-#  課題１
 
  	return template('./views/health-bmi.html', params)
 

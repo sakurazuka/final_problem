@@ -7,7 +7,10 @@ def bmi(h,w):
 	"""
 	height=h/100
 	weight=w
-	return weight / (height * height)
+# 課題３
+	#  return weight / (height * height)
+# 課題３
+	return round(weight / (height * height), 1)
 
 def sqlite2google(date):
 	"""
@@ -30,8 +33,8 @@ def sqlite2fmt(date,sep='/'):
 	if len(mm)==1:
 		mm='0'+mm
 	return sep.join([yyyy,mm,dd])
-	
-	
+
+
 def getdigest(password,account_id):
 	"""
 	パスワードをハッシュにする
@@ -40,10 +43,10 @@ def getdigest(password,account_id):
 	#ソルトを加える
 	digest=salt+str(account_id)+password
 	#ストレッチを１０回実施
-	for i in range(10):		
+	for i in range(10):
 		digest = hashlib.sha256(digest).hexdigest()
 	return digest
-	
+
 def is_password_ok(password, account_id, digest):
 	"""
 	パスワードの一致比較
@@ -52,5 +55,5 @@ def is_password_ok(password, account_id, digest):
 		return True
 	else:
 		return False
-	
-	
+
+
