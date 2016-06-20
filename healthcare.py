@@ -273,6 +273,67 @@ def health_bmi_post():
 	db.close()
 	return redirect('/health-bmi')
 
+#  チャレンジ課題
+@route('/health-fat','GET')
+def health_fat():
+	app_session = request.environ.get('beaker.session')
+	params=read_settings(app_session['account_id'])
+	#直近に測定したデータを１行取得
+	db = sqlite3.connect(FILENAME ).cursor()
+	row=db.execute(
+	'''SELECT * from blood_data WHERE account_id=? order by DATE(datetime) desc''',
+	(params['account_id'],)
+	).fetchone()
+	db.close()
+
+	if row:
+		#直近のデータをテンプレートに埋め込むための変数
+		params['latest_date']=sqlite2fmt(row[1],'/')
+		params['latest_high_pressure']=str(row[2])
+		params['latest_low_pressure']=str(row[3])
+		params['latest_pulse']=str(row[4])
+# 課題２
+                if int(row[2])<120 and int(row[3])<80:
+                    params['ketsuatsu']='至適血圧'
+                elif int(row[2])<130 and int(row[3])<85:
+                    params['ketsuatsu']='正常血圧'
+                elif int(row[2])<140 and int(row[3])<90:
+                    params['ketsuatsu']='正常高値血圧'
+                else:
+                    params['ketsuatsu']='高血圧'
+# 課題２
+
+	return template('./views/health-fat.html',params)
+
+@route('/health-fat','POST')
+def health_fat_post():
+	'''
+	テンプレートのhtmlにグラフ描画のデータをAPIから取得し、
+	javascriptでグラフ画像を作成するやり方
+	'''
+	app_session = request.environ.get('beaker.session')
+	params=read_settings(app_session['account_id'])
+	request_params_key=['datetime','high_pressure','low_pressure','pulse']
+	# リクエストパラメータの値を取得
+	for key in request_params_key:
+		params[key]=unicode(request.forms.get(key,''),'utf-8')
+
+	conn = sqlite3.connect(FILENAME)
+	db=conn.cursor()
+	db.execute('''INSERT INTO blood_data
+			(account_id
+			,datetime
+			,high_pressure
+			,low_pressure
+			,pulse )
+		VALUES(?,?,?,?,?)''',
+			(params['account_id'], params['datetime'].replace('/','-')
+			,params['high_pressure'],params['low_pressure'],params['pulse'],))
+	conn.commit()
+	db.close()
+	return redirect('/health-fat')
+#  チャレンジ課題
+
 @route('/password_settings','GET')
 def password_settings():
 	app_session = request.environ.get('beaker.session')
