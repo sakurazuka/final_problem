@@ -22,6 +22,14 @@
           <li><a href="./health-blood">血圧/脈拍</a></li>
           % end
 
+<!-- チャレンジ課題 -->
+          % if active=='fat':
+          <li class="active"><a href="./health-fat">体脂肪率</a></li>
+          % else:
+          <li><a href="./health-fat">体脂肪率</a></li>
+          % end
+<!-- チャレンジ課題 -->
+
         </ul>
         <ul class="nav navbar-nav navbar-right" style="margin-right:10px;">
           <li  class="dropdown">
@@ -49,5 +57,5 @@
           </li>
         </ul>
       </div>
-      
- 
+
+
